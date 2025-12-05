@@ -14,6 +14,7 @@ import {
   linkCommand,
   unlinkCommand,
   configCommand,
+  importCommand,
 } from './commands/index.js';
 import type { ConflictStrategy, HierarchyType } from './types/index.js';
 
@@ -163,6 +164,25 @@ export function createCli(): Command {
     .description('Manage configuration (actions: list, get, set, delete)')
     .action((action: string, key?: string, value?: string) => {
       return configCommand(action, key, value);
+    });
+
+  // Import command
+  program
+    .command('import <file>')
+    .description('Import work items from Azure DevOps into a new YAML file')
+    .requiredOption('--parent-id <id>', 'Parent work item ID to import from')
+    .option('--org <organization>', 'Azure DevOps organization')
+    .option('--project <project>', 'Azure DevOps project')
+    .option('--include-comments', 'Include work item comments', true)
+    .option('--include-prs', 'Include linked pull requests', true)
+    .action((file: string, options) => {
+      return importCommand(file, {
+        parentId: parseInt(options.parentId as string, 10),
+        org: options.org as string | undefined,
+        project: options.project as string | undefined,
+        includeComments: options.includeComments as boolean,
+        includePRs: options.includePrs as boolean,
+      });
     });
 
   return program;

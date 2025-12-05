@@ -11,3 +11,4 @@ export { diffCommand } from './diff.js';
 export { statusCommand } from './status.js';
 export { linkCommand, unlinkCommand } from './link.js';
 export { configCommand } from './config.js';
+export { importCommand } from './import.js';
