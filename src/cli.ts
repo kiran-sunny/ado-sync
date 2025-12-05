@@ -173,6 +173,8 @@ export function createCli(): Command {
     .requiredOption('--parent-id <id>', 'Parent work item ID to import from')
     .option('--org <organization>', 'Azure DevOps organization')
     .option('--project <project>', 'Azure DevOps project')
+    .option('--filter-tag <tag>', 'Only import children with this tag')
+    .option('--filter-type <type>', 'Only import children of this type (e.g., "Task", "Product Backlog Item")')
     .option('--include-comments', 'Include work item comments', true)
     .option('--include-prs', 'Include linked pull requests', true)
     .action((file: string, options) => {
@@ -180,6 +182,8 @@ export function createCli(): Command {
         parentId: parseInt(options.parentId as string, 10),
         org: options.org as string | undefined,
         project: options.project as string | undefined,
+        filterTag: options.filterTag as string | undefined,
+        filterType: options.filterType as string | undefined,
         includeComments: options.includeComments as boolean,
         includePRs: options.includePrs as boolean,
       });

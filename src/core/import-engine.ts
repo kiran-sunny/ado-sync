@@ -25,6 +25,8 @@ export interface ImportOptions {
   includeComments?: boolean;
   includePRs?: boolean;
   maxDepth?: number;
+  filterTag?: string;
+  filterType?: string;
 }
 
 /**
@@ -49,7 +51,7 @@ export async function importFromAdo(
   config: ResolvedConfig,
   options: ImportOptions = {}
 ): Promise<{ document: WorkItemsDocument; results: ImportResult[] }> {
-  const { includeComments = true, includePRs = true, maxDepth = 10 } = options;
+  const { includeComments = true, includePRs = true, maxDepth = 10, filterTag, filterType } = options;
   const results: ImportResult[] = [];
 
   // Fetch the entire tree
@@ -57,8 +59,11 @@ export async function importFromAdo(
     includeComments,
     includePRs,
     maxDepth,
+    filterTag,
+    filterType,
     currentDepth: 0,
     results,
+    isRoot: true,
   });
 
   if (!tree) {
@@ -84,6 +89,11 @@ export async function importFromAdo(
 
 /**
  * Recursively fetch a work item and all its children
+ *
+ * Filter behavior:
+ * - Filters only apply to direct children of the root item
+ * - Once an item matches the filter, ALL its descendants are included (no further filtering)
+ * - This allows importing "all PBIs with tag X and all their tasks"
  */
 async function fetchWorkItemTree(
   client: AdoClient,
@@ -93,16 +103,25 @@ async function fetchWorkItemTree(
     includeComments: boolean;
     includePRs: boolean;
     maxDepth: number;
+    filterTag?: string;
+    filterType?: string;
     currentDepth: number;
     results: ImportResult[];
+    isRoot?: boolean;
+    filterDisabled?: boolean; // When true, skip filtering (for descendants of matched items)
   }
 ): Promise<WorkItem | null> {
-  const { includeComments, includePRs, maxDepth, currentDepth, results } = context;
+  const { includeComments, includePRs, maxDepth, filterTag, filterType, currentDepth, results, isRoot, filterDisabled } = context;
 
   // Depth check
   if (currentDepth > maxDepth) {
     return null;
   }
+
+  // Determine if we should apply filtering at this level
+  // Filters only apply to direct children of the root (depth 1) and only if filterDisabled is false
+  const hasFilters = !!(filterTag || filterType);
+  const shouldApplyFilter = hasFilters && !filterDisabled && isRoot;
 
   try {
     // Fetch work item with relations
@@ -153,12 +172,26 @@ async function fetchWorkItemTree(
       const children: WorkItem[] = [];
 
       for (const childId of childIds) {
+        // When we need to apply filter, we first fetch the child to check if it matches
         const child = await fetchWorkItemTree(client, childId, config, {
           ...context,
           currentDepth: currentDepth + 1,
+          isRoot: false,
+          // If parent is applying filter, children should NOT apply filter (include all descendants)
+          filterDisabled: shouldApplyFilter ? true : filterDisabled,
         });
+
         if (child) {
-          children.push(child);
+          if (shouldApplyFilter) {
+            // Apply filters to direct children of root
+            const matchesFilter = shouldIncludeItem(child, filterTag, filterType);
+            if (matchesFilter) {
+              children.push(child);
+            }
+          } else {
+            // No filtering - include all children
+            children.push(child);
+          }
         }
       }
 
@@ -367,6 +400,38 @@ function collectTypes(item: WorkItem, types: Set<string>): void {
       collectTypes(child, types);
     }
   }
+}
+
+/**
+ * Check if an item matches the filter criteria
+ */
+function shouldIncludeItem(
+  item: WorkItem,
+  filterTag?: string,
+  filterType?: string
+): boolean {
+  // If no filters, include everything
+  if (!filterTag && !filterType) {
+    return true;
+  }
+
+  // Check type filter
+  if (filterType && item.type !== filterType) {
+    return false;
+  }
+
+  // Check tag filter
+  if (filterTag) {
+    const itemTags = item.tags || [];
+    const hasTag = itemTags.some(tag =>
+      tag.toLowerCase() === filterTag.toLowerCase()
+    );
+    if (!hasTag) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 /**

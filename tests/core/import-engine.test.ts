@@ -490,4 +490,339 @@ describe('Import Engine', () => {
       expect(countItems(item)).toBe(5);
     });
   });
+
+  describe('filter options', () => {
+    it('should filter direct children by tag', async () => {
+      const mockFeature = createMockAdoResponse({
+        id: 100,
+        fields: {
+          'System.Title': 'Parent Feature',
+          'System.WorkItemType': 'Feature',
+        },
+      });
+
+      const mockPBI1 = createMockAdoResponse({
+        id: 101,
+        fields: {
+          'System.Title': 'Frontend PBI',
+          'System.WorkItemType': 'Product Backlog Item',
+          'System.Tags': 'frontend; ui',
+        },
+      });
+
+      const mockPBI2 = createMockAdoResponse({
+        id: 102,
+        fields: {
+          'System.Title': 'Backend PBI',
+          'System.WorkItemType': 'Product Backlog Item',
+          'System.Tags': 'backend; api',
+        },
+      });
+
+      vi.mocked(getWorkItem)
+        .mockResolvedValueOnce(mockFeature)
+        .mockResolvedValueOnce(mockPBI1)
+        .mockResolvedValueOnce(mockPBI2);
+
+      vi.mocked(getChildIds)
+        .mockReturnValueOnce([101, 102])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([]);
+
+      const { document } = await importFromAdo(mockClient, 100, mockConfig, {
+        filterTag: 'frontend',
+        includeComments: false,
+        includePRs: false,
+      });
+
+      // Only the frontend PBI should be included
+      expect(document.workItems[0]?.children).toHaveLength(1);
+      expect(document.workItems[0]?.children?.[0]?.title).toBe('Frontend PBI');
+    });
+
+    it('should filter direct children by type', async () => {
+      const mockFeature = createMockAdoResponse({
+        id: 100,
+        fields: {
+          'System.Title': 'Parent Feature',
+          'System.WorkItemType': 'Feature',
+        },
+      });
+
+      const mockPBI = createMockAdoResponse({
+        id: 101,
+        fields: {
+          'System.Title': 'Child PBI',
+          'System.WorkItemType': 'Product Backlog Item',
+        },
+      });
+
+      const mockTask = createMockAdoResponse({
+        id: 102,
+        fields: {
+          'System.Title': 'Child Task',
+          'System.WorkItemType': 'Task',
+        },
+      });
+
+      vi.mocked(getWorkItem)
+        .mockResolvedValueOnce(mockFeature)
+        .mockResolvedValueOnce(mockPBI)
+        .mockResolvedValueOnce(mockTask);
+
+      vi.mocked(getChildIds)
+        .mockReturnValueOnce([101, 102])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([]);
+
+      const { document } = await importFromAdo(mockClient, 100, mockConfig, {
+        filterType: 'Task',
+        includeComments: false,
+        includePRs: false,
+      });
+
+      // Only the Task should be included
+      expect(document.workItems[0]?.children).toHaveLength(1);
+      expect(document.workItems[0]?.children?.[0]?.type).toBe('Task');
+    });
+
+    it('should filter direct children by both tag and type', async () => {
+      const mockFeature = createMockAdoResponse({
+        id: 100,
+        fields: {
+          'System.Title': 'Parent Feature',
+          'System.WorkItemType': 'Feature',
+        },
+      });
+
+      const mockPBI1 = createMockAdoResponse({
+        id: 101,
+        fields: {
+          'System.Title': 'Frontend PBI',
+          'System.WorkItemType': 'Product Backlog Item',
+          'System.Tags': 'frontend',
+        },
+      });
+
+      const mockTask1 = createMockAdoResponse({
+        id: 102,
+        fields: {
+          'System.Title': 'Frontend Task',
+          'System.WorkItemType': 'Task',
+          'System.Tags': 'frontend',
+        },
+      });
+
+      const mockTask2 = createMockAdoResponse({
+        id: 103,
+        fields: {
+          'System.Title': 'Backend Task',
+          'System.WorkItemType': 'Task',
+          'System.Tags': 'backend',
+        },
+      });
+
+      vi.mocked(getWorkItem)
+        .mockResolvedValueOnce(mockFeature)
+        .mockResolvedValueOnce(mockPBI1)
+        .mockResolvedValueOnce(mockTask1)
+        .mockResolvedValueOnce(mockTask2);
+
+      vi.mocked(getChildIds)
+        .mockReturnValueOnce([101, 102, 103])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([]);
+
+      const { document } = await importFromAdo(mockClient, 100, mockConfig, {
+        filterTag: 'frontend',
+        filterType: 'Task',
+        includeComments: false,
+        includePRs: false,
+      });
+
+      // Only the Frontend Task should be included (matches both tag and type)
+      expect(document.workItems[0]?.children).toHaveLength(1);
+      expect(document.workItems[0]?.children?.[0]?.title).toBe('Frontend Task');
+    });
+
+    it('should not filter the root item', async () => {
+      const mockPBI = createMockAdoResponse({
+        id: 100,
+        fields: {
+          'System.Title': 'Root PBI',
+          'System.WorkItemType': 'Product Backlog Item',
+          'System.Tags': 'backend',
+        },
+      });
+
+      const mockTask = createMockAdoResponse({
+        id: 101,
+        fields: {
+          'System.Title': 'Frontend Task',
+          'System.WorkItemType': 'Task',
+          'System.Tags': 'frontend',
+        },
+      });
+
+      vi.mocked(getWorkItem)
+        .mockResolvedValueOnce(mockPBI)
+        .mockResolvedValueOnce(mockTask);
+
+      vi.mocked(getChildIds)
+        .mockReturnValueOnce([101])
+        .mockReturnValueOnce([]);
+
+      const { document } = await importFromAdo(mockClient, 100, mockConfig, {
+        filterTag: 'frontend',
+        includeComments: false,
+        includePRs: false,
+      });
+
+      // Root PBI should still be included even though it has 'backend' tag
+      expect(document.workItems[0]?.type).toBe('Product Backlog Item');
+      expect(document.workItems[0]?.title).toBe('Root PBI');
+      // The frontend task should be included as a child
+      expect(document.workItems[0]?.children).toHaveLength(1);
+    });
+
+    it('should handle case-insensitive tag filtering', async () => {
+      const mockFeature = createMockAdoResponse({
+        id: 100,
+        fields: {
+          'System.Title': 'Parent Feature',
+          'System.WorkItemType': 'Feature',
+        },
+      });
+
+      const mockPBI = createMockAdoResponse({
+        id: 101,
+        fields: {
+          'System.Title': 'Frontend PBI',
+          'System.WorkItemType': 'Product Backlog Item',
+          'System.Tags': 'Frontend; UI',
+        },
+      });
+
+      vi.mocked(getWorkItem)
+        .mockResolvedValueOnce(mockFeature)
+        .mockResolvedValueOnce(mockPBI);
+
+      vi.mocked(getChildIds)
+        .mockReturnValueOnce([101])
+        .mockReturnValueOnce([]);
+
+      const { document } = await importFromAdo(mockClient, 100, mockConfig, {
+        filterTag: 'frontend', // lowercase
+        includeComments: false,
+        includePRs: false,
+      });
+
+      // Should match 'Frontend' tag case-insensitively
+      expect(document.workItems[0]?.children).toHaveLength(1);
+      expect(document.workItems[0]?.children?.[0]?.title).toBe('Frontend PBI');
+    });
+
+    it('should return no children when filter matches nothing', async () => {
+      const mockFeature = createMockAdoResponse({
+        id: 100,
+        fields: {
+          'System.Title': 'Parent Feature',
+          'System.WorkItemType': 'Feature',
+        },
+      });
+
+      const mockPBI = createMockAdoResponse({
+        id: 101,
+        fields: {
+          'System.Title': 'Backend PBI',
+          'System.WorkItemType': 'Product Backlog Item',
+          'System.Tags': 'backend',
+        },
+      });
+
+      vi.mocked(getWorkItem)
+        .mockResolvedValueOnce(mockFeature)
+        .mockResolvedValueOnce(mockPBI);
+
+      vi.mocked(getChildIds)
+        .mockReturnValueOnce([101])
+        .mockReturnValueOnce([]);
+
+      const { document } = await importFromAdo(mockClient, 100, mockConfig, {
+        filterTag: 'nonexistent',
+        includeComments: false,
+        includePRs: false,
+      });
+
+      // No children should match
+      expect(document.workItems[0]?.children).toBeUndefined();
+    });
+
+    it('should include ALL descendants of matched items without filtering', async () => {
+      // This is the key behavior: filter only applies to direct children of root
+      // Once a child matches, ALL its descendants are included regardless of tags
+      const mockFeature = createMockAdoResponse({
+        id: 100,
+        fields: {
+          'System.Title': 'Parent Feature',
+          'System.WorkItemType': 'Feature',
+        },
+      });
+
+      const mockPBI = createMockAdoResponse({
+        id: 101,
+        fields: {
+          'System.Title': 'Frontend PBI',
+          'System.WorkItemType': 'Product Backlog Item',
+          'System.Tags': 'frontend',
+        },
+      });
+
+      const mockTask1 = createMockAdoResponse({
+        id: 102,
+        fields: {
+          'System.Title': 'Frontend Task',
+          'System.WorkItemType': 'Task',
+          'System.Tags': 'frontend',
+        },
+      });
+
+      const mockTask2 = createMockAdoResponse({
+        id: 103,
+        fields: {
+          'System.Title': 'Backend Task',
+          'System.WorkItemType': 'Task',
+          'System.Tags': 'backend', // No frontend tag!
+        },
+      });
+
+      vi.mocked(getWorkItem)
+        .mockResolvedValueOnce(mockFeature)  // Fetch root (Feature)
+        .mockResolvedValueOnce(mockPBI)      // Fetch PBI (with filterDisabled=true since parent is filtering)
+        .mockResolvedValueOnce(mockTask1)    // Fetch task 1 (no filtering)
+        .mockResolvedValueOnce(mockTask2);   // Fetch task 2 (no filtering)
+
+      vi.mocked(getChildIds)
+        .mockReturnValueOnce([101])          // Feature has 1 child (PBI)
+        .mockReturnValueOnce([102, 103])     // PBI has 2 tasks
+        .mockReturnValueOnce([])             // Task 1 has no children
+        .mockReturnValueOnce([]);            // Task 2 has no children
+
+      const { document } = await importFromAdo(mockClient, 100, mockConfig, {
+        filterTag: 'frontend',
+        includeComments: false,
+        includePRs: false,
+      });
+
+      // PBI should be included (has frontend tag)
+      expect(document.workItems[0]?.children).toHaveLength(1);
+      const pbi = document.workItems[0]?.children?.[0];
+      expect(pbi?.title).toBe('Frontend PBI');
+      // BOTH tasks should be included - filter doesn't apply to grandchildren
+      expect(pbi?.children).toHaveLength(2);
+      expect(pbi?.children?.[0]?.title).toBe('Frontend Task');
+      expect(pbi?.children?.[1]?.title).toBe('Backend Task');
+    });
+  });
 });

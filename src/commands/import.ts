@@ -23,6 +23,8 @@ export interface ImportCommandOpts {
   project?: string;
   includeComments?: boolean;
   includePRs?: boolean;
+  filterTag?: string;
+  filterType?: string;
 }
 
 /**
@@ -32,7 +34,7 @@ export async function importCommand(
   file: string,
   options: ImportCommandOpts
 ): Promise<void> {
-  const { parentId, org, project, includeComments = true, includePRs = true } = options;
+  const { parentId, org, project, includeComments = true, includePRs = true, filterTag, filterType } = options;
 
   // Validate parent ID
   if (!parentId || isNaN(parentId)) {
@@ -90,12 +92,23 @@ export async function importCommand(
     process.exit(1);
   }
 
+  // Build filter description for spinner
+  let filterDesc = '';
+  if (filterTag || filterType) {
+    const filters = [];
+    if (filterTag) filters.push(`tag="${filterTag}"`);
+    if (filterType) filters.push(`type="${filterType}"`);
+    filterDesc = ` (filtering by ${filters.join(', ')})`;
+  }
+
   // Import work items
-  startSpinner(`Importing work item #${parentId} and children...`);
+  startSpinner(`Importing work item #${parentId} and children${filterDesc}...`);
   try {
     const { document, results } = await importFromAdo(client, parentId, config, {
       includeComments,
       includePRs,
+      filterTag,
+      filterType,
     });
 
     succeedSpinner('Import completed');

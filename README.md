@@ -215,6 +215,53 @@ ado-sync config get organization
 ado-sync config delete pat
 ```
 
+### `ado-sync import <file>`
+
+Import work items from Azure DevOps into a new YAML file. This is useful for creating a YAML representation of existing ADO work items.
+
+```bash
+ado-sync import workitems.yaml --parent-id 12345
+ado-sync import sprint.yaml --parent-id 38816 --org myorg --project myproject
+ado-sync import frontend.yaml --parent-id 100 --filter-tag "frontend"
+ado-sync import tasks.yaml --parent-id 100 --filter-type "Task"
+```
+
+Options:
+- `--parent-id <id>` - Parent work item ID to import from (required)
+- `--org <organization>` - Azure DevOps organization
+- `--project <project>` - Azure DevOps project
+- `--filter-tag <tag>` - Only import direct children with this tag (includes all their descendants)
+- `--filter-type <type>` - Only import direct children of this type (includes all their descendants)
+- `--include-comments` - Include work item comments (default: true)
+- `--include-prs` - Include linked pull requests (default: true)
+
+The import command will:
+- Fetch the parent work item and all its children recursively
+- Create a hierarchical YAML structure
+- Auto-detect the hierarchy type (full/medium/simple)
+- Generate local IDs like `feat-123`, `pbi-456`, `task-789`
+
+**Filter Behavior:**
+
+Filters only apply to **direct children** of the parent work item. Once a child matches the filter, **all its descendants are included** regardless of their tags or type.
+
+Example: If you have a Feature with multiple PBIs, each with Tasks:
+```
+Feature #38816
+├── PBI "Frontend Login" (tag: frontend)
+│   ├── Task "Design UI"
+│   └── Task "Implement API" (tag: backend)
+├── PBI "Backend Auth" (tag: backend)
+│   └── Task "Setup DB"
+```
+
+Running `--filter-tag "frontend"` will import:
+- Feature #38816 (parent - always included)
+- PBI "Frontend Login" (matches filter)
+- All tasks under "Frontend Login" (descendants - included regardless of tags)
+
+The "Backend Auth" PBI and its tasks are excluded because the PBI doesn't have the "frontend" tag.
+
 ## Configuration
 
 ### Environment Variables
