@@ -1,0 +1,164 @@
+# Medium Hierarchy: Feature → PBI → Task
+# Use this template when you don't need Epics (smaller projects/sprints)
+
+schemaVersion: "1.0"
+hierarchyType: "medium"
+
+project:
+  organization: "your-organization"   # Replace with your ADO org
+  project: "your-project"             # Replace with your ADO project
+
+workItems:
+  - type: Feature
+    id: "feat-search"
+    title: "Advanced Search Functionality"
+    description: |
+      Implement advanced search with filters, sorting, and saved searches.
+    state: "New"
+    priority: 1
+    businessValue: 90
+    tags:
+      - "search"
+      - "ux-improvement"
+
+    children:
+      - type: "Product Backlog Item"
+        id: "pbi-filters"
+        title: "Implement Search Filters"
+        description: |
+          As a user, I want to filter search results by various criteria
+          so that I can find exactly what I'm looking for.
+        acceptanceCriteria: |
+          - [ ] Date range filter works correctly
+          - [ ] Category filter shows all available categories
+          - [ ] Status filter allows multiple selections
+          - [ ] Filters can be combined
+          - [ ] Clear all filters button works
+        state: "New"
+        priority: 1
+        effort: 8
+        tags:
+          - "filters"
+
+        children:
+          - type: Task
+            id: "task-date-filter"
+            title: "Implement date range filter"
+            description: "Add date picker with from/to selection"
+            state: "To Do"
+            activity: "Development"
+            remainingWork: 4
+
+          - type: Task
+            id: "task-category-filter"
+            title: "Implement category filter"
+            description: "Multi-select dropdown for categories"
+            state: "To Do"
+            activity: "Development"
+            remainingWork: 3
+
+          - type: Task
+            id: "task-status-filter"
+            title: "Implement status filter"
+            description: "Checkbox list for status options"
+            state: "To Do"
+            activity: "Development"
+            remainingWork: 2
+
+          - type: Task
+            id: "task-filter-tests"
+            title: "Write filter unit tests"
+            state: "To Do"
+            activity: "Testing"
+            remainingWork: 3
+
+      - type: "Product Backlog Item"
+        id: "pbi-sort"
+        title: "Implement Search Result Sorting"
+        description: |
+          As a user, I want to sort search results by different fields
+          so that I can organize results in a meaningful way.
+        acceptanceCriteria: |
+          - [ ] Sort by relevance (default)
+          - [ ] Sort by date (newest/oldest)
+          - [ ] Sort by name (A-Z, Z-A)
+          - [ ] Sort indicator shows current sort
+        state: "New"
+        priority: 2
+        effort: 5
+
+        children:
+          - type: Task
+            id: "task-sort-ui"
+            title: "Add sort dropdown UI"
+            state: "To Do"
+            activity: "Development"
+            remainingWork: 2
+
+          - type: Task
+            id: "task-sort-logic"
+            title: "Implement sort logic"
+            state: "To Do"
+            activity: "Development"
+            remainingWork: 3
+
+      - type: "Product Backlog Item"
+        id: "pbi-saved"
+        title: "Saved Searches"
+        description: |
+          As a user, I want to save my search criteria
+          so that I can quickly run the same search again.
+        acceptanceCriteria: |
+          - [ ] Save button appears when filters are applied
+          - [ ] User can name the saved search
+          - [ ] Saved searches appear in sidebar
+          - [ ] Can delete saved searches
+        state: "New"
+        priority: 3
+        effort: 8
+
+        children:
+          - type: Task
+            id: "task-save-api"
+            title: "Create saved search API"
+            state: "To Do"
+            activity: "Development"
+            remainingWork: 4
+
+          - type: Task
+            id: "task-save-ui"
+            title: "Implement saved search UI"
+            state: "To Do"
+            activity: "Development"
+            remainingWork: 4
+
+  - type: Feature
+    id: "feat-export"
+    title: "Data Export"
+    description: |
+      Allow users to export their data in various formats.
+    state: "New"
+    priority: 2
+
+    children:
+      - type: "Product Backlog Item"
+        id: "pbi-csv-export"
+        title: "CSV Export"
+        description: "Export data to CSV format"
+        state: "New"
+        effort: 5
+
+        children:
+          - type: Task
+            id: "task-csv-impl"
+            title: "Implement CSV generation"
+            state: "To Do"
+            activity: "Development"
+            remainingWork: 4
+
+          - type: Task
+            id: "task-csv-download"
+            title: "Add download functionality"
+            state: "To Do"
+            activity: "Development"
+            remainingWork: 2

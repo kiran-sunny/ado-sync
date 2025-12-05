@@ -1,0 +1,134 @@
+# Simple Hierarchy: PBI → Task
+# Use this template for bug fixes, small features, or simple sprint work
+
+schemaVersion: "1.0"
+hierarchyType: "simple"
+
+project:
+  organization: "your-organization"   # Replace with your ADO org
+  project: "your-project"             # Replace with your ADO project
+
+workItems:
+  - type: "Product Backlog Item"
+    id: "pbi-login-fix"
+    title: "Fix Login Timeout Issue"
+    description: |
+      Users report being logged out after 5 minutes of inactivity,
+      but the session should last 30 minutes.
+    acceptanceCriteria: |
+      - [ ] Session timeout is correctly set to 30 minutes
+      - [ ] Token refresh works before expiry
+      - [ ] User sees warning before auto-logout
+      - [ ] No regression in security
+    state: "New"
+    priority: 1
+    effort: 3
+    tags:
+      - "bug"
+      - "authentication"
+      - "urgent"
+
+    children:
+      - type: Task
+        id: "task-investigate"
+        title: "Investigate root cause"
+        description: "Check token expiry settings and refresh logic"
+        state: "To Do"
+        activity: "Development"
+        remainingWork: 2
+
+      - type: Task
+        id: "task-fix"
+        title: "Implement fix"
+        description: "Update token expiry and add refresh mechanism"
+        state: "To Do"
+        activity: "Development"
+        remainingWork: 4
+
+      - type: Task
+        id: "task-test"
+        title: "Write regression tests"
+        description: "Ensure session handling works correctly"
+        state: "To Do"
+        activity: "Testing"
+        remainingWork: 2
+
+  - type: "Product Backlog Item"
+    id: "pbi-perf"
+    title: "Optimize Dashboard Loading Time"
+    description: |
+      Dashboard takes 5+ seconds to load. Target is under 2 seconds.
+    acceptanceCriteria: |
+      - [ ] Initial load under 2 seconds
+      - [ ] Lazy loading for below-fold content
+      - [ ] Loading indicators for async data
+      - [ ] Performance metrics logged
+    state: "New"
+    priority: 2
+    effort: 8
+    tags:
+      - "performance"
+      - "dashboard"
+
+    children:
+      - type: Task
+        id: "task-profile"
+        title: "Profile current performance"
+        description: "Use browser devtools to identify bottlenecks"
+        state: "To Do"
+        activity: "Development"
+        remainingWork: 2
+
+      - type: Task
+        id: "task-lazy"
+        title: "Implement lazy loading"
+        description: "Defer loading of non-critical components"
+        state: "To Do"
+        activity: "Development"
+        remainingWork: 4
+
+      - type: Task
+        id: "task-cache"
+        title: "Add caching layer"
+        description: "Cache API responses where appropriate"
+        state: "To Do"
+        activity: "Development"
+        remainingWork: 3
+
+      - type: Task
+        id: "task-metrics"
+        title: "Add performance metrics"
+        description: "Log load times for monitoring"
+        state: "To Do"
+        activity: "Development"
+        remainingWork: 2
+
+  - type: Bug
+    id: "bug-email"
+    title: "Email notifications not sent for new comments"
+    description: |
+      When a user adds a comment, other participants should receive
+      an email notification, but emails are not being sent.
+    acceptanceCriteria: |
+      - [ ] Email sent when comment added
+      - [ ] Correct recipients based on subscription settings
+      - [ ] Email contains comment content and link
+    state: "New"
+    priority: 1
+    effort: 3
+
+    children:
+      - type: Task
+        id: "task-debug-email"
+        title: "Debug email service"
+        description: "Check logs and email queue"
+        state: "To Do"
+        activity: "Development"
+        remainingWork: 2
+
+      - type: Task
+        id: "task-fix-email"
+        title: "Fix email trigger"
+        state: "To Do"
+        activity: "Development"
+        remainingWork: 2

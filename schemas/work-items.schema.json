@@ -1,0 +1,286 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ado-sync.dev/schemas/work-items.schema.json",
+  "title": "ADO Sync Work Items Schema",
+  "description": "Schema for YAML work item definitions that sync with Azure DevOps",
+  "type": "object",
+  "required": ["schemaVersion", "hierarchyType", "project", "workItems"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "description": "Schema version for compatibility",
+      "enum": ["1.0"]
+    },
+    "hierarchyType": {
+      "type": "string",
+      "description": "Work item hierarchy type",
+      "enum": ["full", "medium", "simple"]
+    },
+    "project": {
+      "$ref": "#/definitions/projectConfig"
+    },
+    "workItems": {
+      "type": "array",
+      "description": "List of work items",
+      "items": {
+        "$ref": "#/definitions/workItem"
+      },
+      "minItems": 1
+    }
+  },
+  "definitions": {
+    "projectConfig": {
+      "type": "object",
+      "description": "Project configuration",
+      "required": ["organization", "project"],
+      "properties": {
+        "organization": {
+          "type": "string",
+          "description": "Azure DevOps organization name",
+          "minLength": 1
+        },
+        "project": {
+          "type": "string",
+          "description": "Azure DevOps project name",
+          "minLength": 1
+        },
+        "areaPath": {
+          "type": "string",
+          "description": "Default area path for work items"
+        },
+        "iterationPath": {
+          "type": "string",
+          "description": "Default iteration path for work items"
+        }
+      }
+    },
+    "workItem": {
+      "type": "object",
+      "description": "Work item definition",
+      "required": ["type", "id", "title"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Work item type",
+          "enum": ["Epic", "Feature", "Product Backlog Item", "User Story", "Task", "Bug", "Issue"]
+        },
+        "id": {
+          "type": "string",
+          "description": "Local reference ID (user-defined, must be unique)",
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "title": {
+          "type": "string",
+          "description": "Work item title",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "description": {
+          "type": "string",
+          "description": "Work item description (supports HTML/markdown)"
+        },
+        "state": {
+          "type": "string",
+          "description": "Work item state"
+        },
+        "priority": {
+          "type": "integer",
+          "description": "Priority (1=highest, 4=lowest)",
+          "minimum": 1,
+          "maximum": 4
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tags/labels",
+          "items": {
+            "type": "string"
+          }
+        },
+        "assignedTo": {
+          "type": "string",
+          "description": "Email or display name of assigned user"
+        },
+        "areaPath": {
+          "type": "string",
+          "description": "Area path (overrides project default)"
+        },
+        "iterationPath": {
+          "type": "string",
+          "description": "Iteration path (overrides project default)"
+        },
+        "valueArea": {
+          "type": "string",
+          "description": "Value area (for Epics/Features)",
+          "enum": ["Business", "Architectural"]
+        },
+        "businessValue": {
+          "type": "integer",
+          "description": "Business value score",
+          "minimum": 0
+        },
+        "targetDate": {
+          "type": "string",
+          "description": "Target completion date (ISO 8601)",
+          "format": "date"
+        },
+        "acceptanceCriteria": {
+          "type": "string",
+          "description": "Acceptance criteria (for PBI/Stories)"
+        },
+        "effort": {
+          "type": "number",
+          "description": "Effort estimate",
+          "minimum": 0
+        },
+        "storyPoints": {
+          "type": "number",
+          "description": "Story points",
+          "minimum": 0
+        },
+        "activity": {
+          "type": "string",
+          "description": "Activity type (for Tasks)",
+          "enum": ["Development", "Testing", "Documentation", "Design", "Requirements", "Deployment"]
+        },
+        "remainingWork": {
+          "type": "number",
+          "description": "Remaining work in hours",
+          "minimum": 0
+        },
+        "originalEstimate": {
+          "type": "number",
+          "description": "Original estimate in hours",
+          "minimum": 0
+        },
+        "completedWork": {
+          "type": "number",
+          "description": "Completed work in hours",
+          "minimum": 0
+        },
+        "_ado": {
+          "$ref": "#/definitions/adoMetadata"
+        },
+        "children": {
+          "type": "array",
+          "description": "Child work items",
+          "items": {
+            "$ref": "#/definitions/workItem"
+          }
+        }
+      }
+    },
+    "adoMetadata": {
+      "type": "object",
+      "description": "Azure DevOps sync metadata (managed by tool)",
+      "properties": {
+        "workItemId": {
+          "type": ["integer", "null"],
+          "description": "Azure DevOps work item ID"
+        },
+        "url": {
+          "type": ["string", "null"],
+          "description": "URL to work item in Azure DevOps"
+        },
+        "rev": {
+          "type": ["integer", "null"],
+          "description": "Revision number for conflict detection"
+        },
+        "lastSyncedAt": {
+          "type": ["string", "null"],
+          "description": "Last sync timestamp (ISO 8601)"
+        },
+        "etag": {
+          "type": ["string", "null"],
+          "description": "ETag for optimistic concurrency"
+        },
+        "state": {
+          "type": "string",
+          "description": "Current state in ADO (read-only)"
+        },
+        "assignedTo": {
+          "type": "string",
+          "description": "Current assignee in ADO (read-only)"
+        },
+        "comments": {
+          "type": "array",
+          "description": "Comments from ADO (read-only)",
+          "items": {
+            "$ref": "#/definitions/adoComment"
+          }
+        },
+        "linkedPRs": {
+          "type": "array",
+          "description": "Linked pull requests from ADO (read-only)",
+          "items": {
+            "$ref": "#/definitions/adoPullRequest"
+          }
+        },
+        "history": {
+          "type": "array",
+          "description": "State change history from ADO (read-only)",
+          "items": {
+            "$ref": "#/definitions/adoHistoryEntry"
+          }
+        }
+      }
+    },
+    "adoComment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "author": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "adoPullRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "repository": {
+          "type": "string"
+        }
+      }
+    },
+    "adoHistoryEntry": {
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "string"
+        },
+        "field": {
+          "type": "string"
+        },
+        "oldValue": {
+          "type": "string"
+        },
+        "newValue": {
+          "type": "string"
+        },
+        "changedBy": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

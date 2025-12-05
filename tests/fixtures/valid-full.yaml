@@ -1,0 +1,83 @@
+schemaVersion: "1.0"
+hierarchyType: "full"
+
+project:
+  organization: "test-org"
+  project: "test-project"
+  areaPath: "test-project\\Team1"
+  iterationPath: "test-project\\Sprint 1"
+
+workItems:
+  - type: "Epic"
+    id: "epic-001"
+    title: "Customer Portal Redesign"
+    description: |
+      Complete redesign of the customer portal to improve
+      user experience and modernize the interface.
+    state: "New"
+    priority: 1
+    tags:
+      - "Q1-2025"
+      - "strategic"
+    valueArea: "Business"
+    businessValue: 100
+    targetDate: "2025-06-30"
+    children:
+      - type: "Feature"
+        id: "feat-001"
+        title: "User Authentication"
+        description: "Modern authentication system"
+        state: "New"
+        priority: 1
+        valueArea: "Business"
+        children:
+          - type: "Product Backlog Item"
+            id: "pbi-001"
+            title: "OAuth2 Integration"
+            description: "Implement OAuth2 with multiple providers"
+            acceptanceCriteria: |
+              - [ ] Google OAuth2 working
+              - [ ] Microsoft OAuth2 working
+              - [ ] Session management implemented
+            effort: 8
+            state: "New"
+            children:
+              - type: "Task"
+                id: "task-001"
+                title: "Setup Google OAuth credentials"
+                remainingWork: 4
+                activity: "Development"
+              - type: "Task"
+                id: "task-002"
+                title: "Implement OAuth callback handler"
+                remainingWork: 6
+                activity: "Development"
+          - type: "Product Backlog Item"
+            id: "pbi-002"
+            title: "Password reset flow"
+            effort: 5
+            state: "New"
+            children:
+              - type: "Task"
+                id: "task-003"
+                title: "Design password reset email"
+                remainingWork: 2
+                activity: "Design"
+
+      - type: "Feature"
+        id: "feat-002"
+        title: "Dashboard Redesign"
+        description: "New dashboard with improved UX"
+        state: "New"
+        priority: 2
+        children:
+          - type: "Product Backlog Item"
+            id: "pbi-003"
+            title: "Dashboard layout component"
+            effort: 5
+            state: "New"
+            _ado:
+              workItemId: 789
+              url: "https://dev.azure.com/test-org/test-project/_workitems/edit/789"
+              rev: 1
+              lastSyncedAt: "2025-01-14T08:00:00Z"

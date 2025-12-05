@@ -1,0 +1,162 @@
+# Full Hierarchy: Epic → Feature → PBI → Task
+# Use this template when you need the complete work item hierarchy
+
+schemaVersion: "1.0"
+hierarchyType: "full"
+
+project:
+  organization: "your-organization"   # Replace with your ADO org
+  project: "your-project"             # Replace with your ADO project
+  areaPath: "your-project\\Team"      # Optional: default area path
+  iterationPath: "your-project\\Sprint 1"  # Optional: default iteration
+
+workItems:
+  - type: Epic
+    id: "epic-001"
+    title: "Customer Portal Redesign"
+    description: |
+      Complete redesign of the customer-facing portal with modern UX,
+      improved performance, and mobile responsiveness.
+    state: "New"
+    priority: 1
+    valueArea: "Business"
+    tags:
+      - "Q1-2025"
+      - "strategic"
+      - "customer-facing"
+
+    children:
+      - type: Feature
+        id: "feat-auth"
+        title: "User Authentication Revamp"
+        description: |
+          Implement modern authentication with OAuth2 and MFA support.
+        state: "New"
+        priority: 2
+        businessValue: 100
+        targetDate: "2025-03-15"
+        tags:
+          - "security"
+          - "auth"
+
+        children:
+          - type: "Product Backlog Item"
+            id: "pbi-oauth"
+            title: "Implement OAuth2 Provider Integration"
+            description: |
+              As a user, I want to login with my existing Google/Microsoft account
+              so that I don't need to create a new password.
+            acceptanceCriteria: |
+              - [ ] Google OAuth2 integration working
+              - [ ] Microsoft OAuth2 integration working
+              - [ ] User profile synchronized from provider
+              - [ ] Existing users can link accounts
+              - [ ] Error handling for failed auth attempts
+            state: "New"
+            priority: 1
+            effort: 8
+
+            children:
+              - type: Task
+                id: "task-google-setup"
+                title: "Set up Google OAuth2 credentials"
+                description: "Configure GCP project and OAuth consent screen"
+                state: "To Do"
+                activity: "Development"
+                remainingWork: 4
+
+              - type: Task
+                id: "task-google-impl"
+                title: "Implement Google OAuth2 flow"
+                description: "Backend implementation for Google authentication"
+                state: "To Do"
+                activity: "Development"
+                remainingWork: 8
+
+              - type: Task
+                id: "task-ms-impl"
+                title: "Implement Microsoft OAuth2 flow"
+                description: "Backend implementation for Microsoft authentication"
+                state: "To Do"
+                activity: "Development"
+                remainingWork: 6
+
+              - type: Task
+                id: "task-oauth-tests"
+                title: "Write OAuth integration tests"
+                state: "To Do"
+                activity: "Testing"
+                remainingWork: 4
+
+          - type: "Product Backlog Item"
+            id: "pbi-mfa"
+            title: "Add Multi-Factor Authentication"
+            description: |
+              As a user, I want to enable MFA on my account
+              so that my account is more secure.
+            acceptanceCriteria: |
+              - [ ] TOTP (authenticator app) support
+              - [ ] SMS fallback option
+              - [ ] Recovery codes generated
+              - [ ] MFA can be disabled with password confirmation
+            state: "New"
+            priority: 2
+            effort: 13
+
+            children:
+              - type: Task
+                id: "task-totp"
+                title: "Implement TOTP authentication"
+                state: "To Do"
+                activity: "Development"
+                remainingWork: 8
+
+              - type: Task
+                id: "task-recovery"
+                title: "Implement recovery codes"
+                state: "To Do"
+                activity: "Development"
+                remainingWork: 4
+
+      - type: Feature
+        id: "feat-dashboard"
+        title: "New Dashboard Experience"
+        description: |
+          Redesigned dashboard with customizable widgets and real-time updates.
+        state: "New"
+        priority: 2
+        businessValue: 80
+        tags:
+          - "ux"
+          - "dashboard"
+
+        children:
+          - type: "Product Backlog Item"
+            id: "pbi-widgets"
+            title: "Implement Widget Framework"
+            description: |
+              As a user, I want to customize my dashboard layout
+              so that I can see the information most relevant to me.
+            acceptanceCriteria: |
+              - [ ] Drag and drop widget placement
+              - [ ] Widget resize support
+              - [ ] Layout persisted per user
+              - [ ] Default layout for new users
+            state: "New"
+            priority: 1
+            effort: 13
+
+            children:
+              - type: Task
+                id: "task-dnd"
+                title: "Implement drag-and-drop framework"
+                state: "To Do"
+                activity: "Development"
+                remainingWork: 8
+
+              - type: Task
+                id: "task-persist"
+                title: "Persist layout to user preferences"
+                state: "To Do"
+                activity: "Development"
+                remainingWork: 4

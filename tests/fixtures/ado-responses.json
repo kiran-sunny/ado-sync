@@ -1,0 +1,146 @@
+{
+  "workItem": {
+    "id": 123,
+    "rev": 1,
+    "fields": {
+      "System.Title": "Test Work Item",
+      "System.State": "New",
+      "System.WorkItemType": "Product Backlog Item",
+      "System.Description": "Test description",
+      "System.AreaPath": "test-project",
+      "System.IterationPath": "test-project\\Sprint 1",
+      "System.Tags": "tag1; tag2",
+      "Microsoft.VSTS.Common.Priority": 2,
+      "Microsoft.VSTS.Scheduling.Effort": 5,
+      "System.AssignedTo": {
+        "displayName": "John Doe",
+        "uniqueName": "john@example.com"
+      }
+    },
+    "url": "https://dev.azure.com/test-org/test-project/_apis/wit/workItems/123"
+  },
+  "workItemWithRelations": {
+    "id": 123,
+    "rev": 1,
+    "fields": {
+      "System.Title": "Test Work Item",
+      "System.State": "New",
+      "System.WorkItemType": "Product Backlog Item"
+    },
+    "relations": [
+      {
+        "rel": "System.LinkTypes.Hierarchy-Reverse",
+        "url": "https://dev.azure.com/test-org/test-project/_apis/wit/workItems/100",
+        "attributes": {
+          "name": "Parent"
+        }
+      },
+      {
+        "rel": "System.LinkTypes.Hierarchy-Forward",
+        "url": "https://dev.azure.com/test-org/test-project/_apis/wit/workItems/200",
+        "attributes": {
+          "name": "Child"
+        }
+      }
+    ],
+    "url": "https://dev.azure.com/test-org/test-project/_apis/wit/workItems/123"
+  },
+  "batchResponse": {
+    "count": 2,
+    "value": [
+      {
+        "id": 123,
+        "rev": 1,
+        "fields": {
+          "System.Title": "Work Item 1",
+          "System.State": "New",
+          "System.WorkItemType": "Product Backlog Item"
+        },
+        "url": "https://dev.azure.com/test-org/test-project/_apis/wit/workItems/123"
+      },
+      {
+        "id": 124,
+        "rev": 2,
+        "fields": {
+          "System.Title": "Work Item 2",
+          "System.State": "Active",
+          "System.WorkItemType": "Task"
+        },
+        "url": "https://dev.azure.com/test-org/test-project/_apis/wit/workItems/124"
+      }
+    ]
+  },
+  "commentsResponse": {
+    "totalCount": 2,
+    "count": 2,
+    "comments": [
+      {
+        "id": 1,
+        "workItemId": 123,
+        "text": "First comment on this work item",
+        "createdBy": {
+          "displayName": "John Doe",
+          "uniqueName": "john@example.com"
+        },
+        "createdDate": "2025-01-14T09:00:00Z",
+        "modifiedDate": "2025-01-14T09:00:00Z"
+      },
+      {
+        "id": 2,
+        "workItemId": 123,
+        "text": "Second comment with more details",
+        "createdBy": {
+          "displayName": "Jane Smith",
+          "uniqueName": "jane@example.com"
+        },
+        "createdDate": "2025-01-15T10:30:00Z",
+        "modifiedDate": "2025-01-15T10:30:00Z"
+      }
+    ]
+  },
+  "pullRequestsResponse": {
+    "count": 1,
+    "value": [
+      {
+        "pullRequestId": 456,
+        "title": "feat: Add OAuth authentication",
+        "status": "active",
+        "createdBy": {
+          "displayName": "Developer One",
+          "uniqueName": "dev1@example.com"
+        },
+        "creationDate": "2025-01-14T14:00:00Z",
+        "repository": {
+          "id": "repo-guid-123",
+          "name": "test-repo",
+          "url": "https://dev.azure.com/test-org/test-project/_git/test-repo"
+        }
+      }
+    ]
+  },
+  "errorResponses": {
+    "unauthorized": {
+      "status": 401,
+      "message": "TF401002: Invalid or missing credentials"
+    },
+    "notFound": {
+      "status": 404,
+      "message": "TF401232: Work item 99999 does not exist"
+    },
+    "conflict": {
+      "status": 409,
+      "message": "VS402691: The work item has been modified by another user"
+    },
+    "rateLimited": {
+      "status": 429,
+      "message": "Rate limit exceeded",
+      "headers": {
+        "Retry-After": "60"
+      }
+    },
+    "serverError": {
+      "status": 500,
+      "message": "Internal server error"
+    }
+  }
+}

@@ -1,0 +1,46 @@
+schemaVersion: "1.0"
+hierarchyType: "simple"
+
+project:
+  organization: "test-org"
+  project: "test-project"
+
+workItems:
+  - type: "Product Backlog Item"
+    id: "pbi-001"
+    title: "Implement user login"
+    description: |
+      As a user, I want to login to the application
+      so that I can access my personalized content.
+    state: "New"
+    priority: 2
+    effort: 5
+    acceptanceCriteria: |
+      - [ ] User can login with email
+      - [ ] User can login with Google OAuth
+    tags:
+      - "auth"
+      - "Q1-2025"
+    children:
+      - type: "Task"
+        id: "task-001"
+        title: "Create login form component"
+        state: "New"
+        remainingWork: 4
+      - type: "Task"
+        id: "task-002"
+        title: "Implement authentication service"
+        state: "New"
+        remainingWork: 8
+
+  - type: "Product Backlog Item"
+    id: "pbi-002"
+    title: "User profile page"
+    description: "Display user profile information"
+    state: "Active"
+    effort: 3
+    _ado:
+      workItemId: 456
+      url: "https://dev.azure.com/test-org/test-project/_workitems/edit/456"
+      rev: 2
+      lastSyncedAt: "2025-01-15T10:00:00Z"

@@ -1,0 +1,25 @@
+# Invalid YAML file for testing validation errors
+
+schemaVersion: "1.0"
+hierarchyType: "invalid-type"  # Invalid hierarchy type
+
+project:
+  organization: "test-org"
+  # Missing required 'project' field
+
+workItems:
+  - type: "InvalidWorkItemType"  # Invalid type
+    # Missing required 'id' field
+    title: "Missing ID"
+
+  - type: "Product Backlog Item"
+    id: ""  # Empty ID not allowed
+    title: ""  # Empty title not allowed
+
+  - type: "Task"
+    id: "task-with-invalid-parent"
+    title: "Task at root level"
+    children:
+      - type: "Epic"  # Epic cannot be child of Task
+        id: "epic-invalid"
+        title: "Invalid child"
